@@ -3,10 +3,14 @@
     "step": {
       "user": {
         "title": "Torn City Integration Setup",
-        "description": "Enter your Torn City API credentials. A Full access API key is recommended for complete functionality.",
+        "description": "Enter your Torn City API credentials. A **Full** access API key is recommended for complete functionality.\n\n[Create a Full Access API key for Home Assistant](https://www.torn.com/preferences.php#tab=api?step=addNewKey&title=Home%20Assistant&user=*&property=*&faction=*&company=*&market=*&torn=*&key=*) or [manage existing keys](https://www.torn.com/preferences.php#tab=api)",
         "data": {
           "api_key": "API Key (Full recommended)",
           "update_interval": "Update Interval (seconds)"
+        },
+        "data_description": {
+          "api_key": "Your Torn City API key. Full access recommended for battle stats.",
+          "update_interval": "How often to fetch data from Torn API (30-3600 seconds)"
         }
       }
     },

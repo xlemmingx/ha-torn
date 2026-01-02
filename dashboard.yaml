@@ -161,43 +161,22 @@ views:
                 name: Arrival At
               - entity: sensor.torn_travel_time_left
                 name: Time Left
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Skills
-            text_only: true
-          - type: auto-entities
-            card:
-              type: entities
-              title: All Skills
-            filter:
-              include:
-                - entity_id: sensor.torn_skill_*
-              exclude: []
-            sort:
-              method: name
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Recent Activity Log
-            text_only: true
-          - type: markdown
-            entity_id: sensor.torn_log_latest
-            content: >
-              **Latest:** {{ states('sensor.torn_log_latest') }}
+      - type: markdown
+        title: Skills
+        content: |
+          Skill sensors werden dynamisch erstellt als `sensor.torn_skill_*`.
 
+          Füge sie über den Entity Picker hinzu (suche nach "torn skill").
+      - type: markdown
+        title: Recent Activity Log
+        content: |
+          {% set latest = states('sensor.torn_log_latest') %}
+          {% set entries = state_attr('sensor.torn_log_latest', 'entries') %}
 
-              {% set attrs = state_attr('sensor.torn_log_latest', 'entries') %}
+          **Latest:** {{ latest if latest != 'unknown' else 'No activity' }}
 
-              {% if attrs %}
-
-              {% for entry in attrs %}
-
-              - {{ entry.timestamp | timestamp_custom('%H:%M:%S', True) }}: {{
-              entry.log }}
-
-              {% endfor %}
-
-              {% endif %}
+          {% if entries %}
+          {% for entry in entries %}
+          - **{{ entry.timestamp | timestamp_custom('%H:%M:%S', True) }}**: {{ entry.title }}
+          {% endfor %}
+          {% endif %}

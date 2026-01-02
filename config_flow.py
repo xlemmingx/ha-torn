@@ -12,13 +12,16 @@ from homeassistant.const import CONF_NAME
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
-from .const import DOMAIN, CONF_API_KEY, API_BASE_URL, API_TIMEOUT
+from .const import DOMAIN, CONF_API_KEY, CONF_UPDATE_INTERVAL, API_BASE_URL, API_TIMEOUT, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_API_KEY): str,
+        vol.Optional(CONF_UPDATE_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
+            vol.Coerce(int), vol.Range(min=30, max=3600)
+        ),
     }
 )
 

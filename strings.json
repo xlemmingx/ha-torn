@@ -1,0 +1,19 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Torn City Integration Setup",
+        "description": "Enter your Torn City API credentials. A Full access API key is recommended for complete functionality.",
+        "data": {
+          "api_key": "API Key (Full recommended)",
+          "update_interval": "Update Interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Torn API",
+      "invalid_auth": "Invalid API key",
+      "unknown": "Unexpected error occurred"
+    }
+  }
+}

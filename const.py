@@ -9,9 +9,10 @@ API_RATE_LIMIT = 100  # requests per minute
 
 # Configuration
 CONF_API_KEY = "api_key"
+CONF_UPDATE_INTERVAL = "update_interval"
 
 # Default values
-DEFAULT_SCAN_INTERVAL = 300  # 5 minutes
+DEFAULT_SCAN_INTERVAL = 60  # 1 minute
 
 # API Endpoints to fetch
 # Add new endpoints here to extend functionality

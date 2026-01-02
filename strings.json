@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Torn City Integration Setup",
-        "description": "Enter your Torn City API credentials. A **Full** access API key is recommended for complete functionality.\n\n[Create a Full Access API key for Home Assistant](https://www.torn.com/preferences.php#tab=api?step=addNewKey&title=Home%20Assistant&user=*&property=*&faction=*&company=*&market=*&torn=*&key=*) or [manage existing keys](https://www.torn.com/preferences.php#tab=api)",
+        "description": "Enter your Torn City API credentials. A **Full** access API key is recommended for complete functionality.\n\n[Create a Full Access API key for Home Assistant](https://www.torn.com/preferences.php#tab=api?step=addNewKey&title=Home%20Assistant&type=4) or [manage existing keys](https://www.torn.com/preferences.php#tab=api)",
         "data": {
           "api_key": "API Key (Full recommended)",
           "update_interval": "Update Interval (seconds)"

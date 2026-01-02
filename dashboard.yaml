@@ -152,6 +152,6 @@ views:
 
           {% if entries %}
           {% for entry in entries %}
-          - **{{ entry.timestamp | timestamp_custom('%H:%M:%S', True) }}**: {{ entry.log }}
+          - **{{ entry.timestamp | timestamp_custom('%H:%M:%S', True) }}**: {{ entry.title }}
           {% endfor %}
           {% endif %}

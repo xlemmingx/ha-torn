@@ -1,10 +1,15 @@
 """Sensor platform for Torn City integration."""
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 import logging
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity, SensorStateClass
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorStateClass,
+    SensorDeviceClass,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -38,7 +43,41 @@ async def async_setup_entry(
         TornBattleStatsSpeedSensor(coordinator, entry),
         TornBattleStatsDexteritySensor(coordinator, entry),
         TornBattleStatsTotalSensor(coordinator, entry),
+        # Bars sensors
+        TornBarsEnergySensor(coordinator, entry),
+        TornBarsNerveSensor(coordinator, entry),
+        TornBarsHappySensor(coordinator, entry),
+        TornBarsLifeSensor(coordinator, entry),
+        TornBarsChainSensor(coordinator, entry),
+        # Cooldowns sensors
+        TornCooldownsDrugSensor(coordinator, entry),
+        TornCooldownsMedicalSensor(coordinator, entry),
+        TornCooldownsBoosterSensor(coordinator, entry),
+        # Money sensors
+        TornMoneyPointsSensor(coordinator, entry),
+        TornMoneyWalletSensor(coordinator, entry),
+        TornMoneyCompanySensor(coordinator, entry),
+        TornMoneyVaultSensor(coordinator, entry),
+        TornMoneyCaymanBankSensor(coordinator, entry),
+        TornMoneyCityBankSensor(coordinator, entry),
+        TornMoneyFactionSensor(coordinator, entry),
+        TornMoneyDailyNetworthSensor(coordinator, entry),
+        # Travel sensors
+        TornTravelDestinationSensor(coordinator, entry),
+        TornTravelMethodSensor(coordinator, entry),
+        TornTravelDepartedAtSensor(coordinator, entry),
+        TornTravelArrivalAtSensor(coordinator, entry),
+        TornTravelTimeLeftSensor(coordinator, entry),
+        # Log sensor
+        TornLogLatestSensor(coordinator, entry),
     ]
+
+    # Add dynamic skill sensors
+    if coordinator.data and "skills" in coordinator.data:
+        skills = coordinator.data["skills"]
+        if skills and isinstance(skills, list):
+            for skill in skills:
+                entities.append(TornSkillSensor(coordinator, entry, skill))
 
     async_add_entities(entities)
 
@@ -62,7 +101,9 @@ class TornSensor(CoordinatorEntity[TornDataUpdateCoordinator], SensorEntity):
         return self.coordinator.last_update_success and self.coordinator.data is not None
 
 
+# ============================================================================
 # Profile Sensors
+# ============================================================================
 
 
 class TornProfileNameSensor(TornSensor):
@@ -132,14 +173,15 @@ class TornProfileStatusSensor(TornSensor):
         """Return the state."""
         if self.coordinator.data:
             status = self.coordinator.data.get("profile", {}).get("status", {})
-            # Status is typically an object with state, description, etc.
             if isinstance(status, dict):
                 return status.get("state") or status.get("description")
             return str(status)
         return None
 
 
+# ============================================================================
 # Battle Stats Sensors
+# ============================================================================
 
 
 class TornBattleStatsStrengthSensor(TornSensor):
@@ -280,3 +322,705 @@ class TornBattleStatsTotalSensor(TornSensor):
                 .get("total")
             )
         return None
+
+
+# ============================================================================
+# Bars Sensors
+# ============================================================================
+
+
+class TornBarsEnergySensor(TornSensor):
+    """Sensor for energy bar."""
+
+    _attr_icon = "mdi:lightning-bolt"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_bars_energy"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Bars Energy"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            energy = self.coordinator.data.get("bars", {}).get("energy", {})
+            return energy.get("current")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        if self.coordinator.data:
+            energy = self.coordinator.data.get("bars", {}).get("energy", {})
+            return {
+                "current": energy.get("current"),
+                "maximum": energy.get("maximum"),
+            }
+        return {}
+
+
+class TornBarsNerveSensor(TornSensor):
+    """Sensor for nerve bar."""
+
+    _attr_icon = "mdi:brain"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_bars_nerve"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Bars Nerve"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            nerve = self.coordinator.data.get("bars", {}).get("nerve", {})
+            return nerve.get("current")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        if self.coordinator.data:
+            nerve = self.coordinator.data.get("bars", {}).get("nerve", {})
+            return {
+                "current": nerve.get("current"),
+                "maximum": nerve.get("maximum"),
+            }
+        return {}
+
+
+class TornBarsHappySensor(TornSensor):
+    """Sensor for happy bar."""
+
+    _attr_icon = "mdi:emoticon-happy"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_bars_happy"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Bars Happy"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            happy = self.coordinator.data.get("bars", {}).get("happy", {})
+            return happy.get("current")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        if self.coordinator.data:
+            happy = self.coordinator.data.get("bars", {}).get("happy", {})
+            return {
+                "current": happy.get("current"),
+                "maximum": happy.get("maximum"),
+            }
+        return {}
+
+
+class TornBarsLifeSensor(TornSensor):
+    """Sensor for life bar."""
+
+    _attr_icon = "mdi:heart-pulse"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_bars_life"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Bars Life"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            life = self.coordinator.data.get("bars", {}).get("life", {})
+            return life.get("current")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        if self.coordinator.data:
+            life = self.coordinator.data.get("bars", {}).get("life", {})
+            return {
+                "current": life.get("current"),
+                "maximum": life.get("maximum"),
+            }
+        return {}
+
+
+class TornBarsChainSensor(TornSensor):
+    """Sensor for chain bar."""
+
+    _attr_icon = "mdi:link-variant"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_bars_chain"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Bars Chain"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            chain = self.coordinator.data.get("bars", {}).get("chain")
+            if chain and isinstance(chain, dict):
+                return chain.get("current", 0)
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        if self.coordinator.data:
+            chain = self.coordinator.data.get("bars", {}).get("chain")
+            if chain and isinstance(chain, dict):
+                return {
+                    "current": chain.get("current"),
+                    "maximum": chain.get("maximum"),
+                    "timeout": chain.get("timeout"),
+                }
+        return {}
+
+
+# ============================================================================
+# Cooldowns Sensors
+# ============================================================================
+
+
+class TornCooldownsDrugSensor(TornSensor):
+    """Sensor for drug cooldown."""
+
+    _attr_icon = "mdi:pill"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_cooldowns_drug"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Cooldowns Drug"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the state as timestamp."""
+        if self.coordinator.data:
+            seconds = self.coordinator.data.get("cooldowns", {}).get("drug", 0)
+            if seconds > 0:
+                return datetime.now(timezone.utc).replace(microsecond=0) + timedelta(seconds=seconds)
+        return None
+
+
+class TornCooldownsMedicalSensor(TornSensor):
+    """Sensor for medical cooldown."""
+
+    _attr_icon = "mdi:medical-bag"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_cooldowns_medical"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Cooldowns Medical"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the state as timestamp."""
+        if self.coordinator.data:
+            seconds = self.coordinator.data.get("cooldowns", {}).get("medical", 0)
+            if seconds > 0:
+                return datetime.now(timezone.utc).replace(microsecond=0) + timedelta(seconds=seconds)
+        return None
+
+
+class TornCooldownsBoosterSensor(TornSensor):
+    """Sensor for booster cooldown."""
+
+    _attr_icon = "mdi:rocket-launch"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_cooldowns_booster"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Cooldowns Booster"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the state as timestamp."""
+        if self.coordinator.data:
+            seconds = self.coordinator.data.get("cooldowns", {}).get("booster", 0)
+            if seconds > 0:
+                return datetime.now(timezone.utc).replace(microsecond=0) + timedelta(seconds=seconds)
+        return None
+
+
+# ============================================================================
+# Money Sensors
+# ============================================================================
+
+
+class TornMoneyPointsSensor(TornSensor):
+    """Sensor for points."""
+
+    _attr_icon = "mdi:star-circle"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_points"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money Points"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("money", {}).get("points")
+        return None
+
+
+class TornMoneyWalletSensor(TornSensor):
+    """Sensor for wallet."""
+
+    _attr_icon = "mdi:wallet"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_wallet"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money Wallet"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("money", {}).get("wallet")
+        return None
+
+
+class TornMoneyCompanySensor(TornSensor):
+    """Sensor for company funds."""
+
+    _attr_icon = "mdi:office-building"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_company"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money Company"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("money", {}).get("company")
+        return None
+
+
+class TornMoneyVaultSensor(TornSensor):
+    """Sensor for vault."""
+
+    _attr_icon = "mdi:safe"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_vault"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money Vault"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("money", {}).get("vault")
+        return None
+
+
+class TornMoneyCaymanBankSensor(TornSensor):
+    """Sensor for Cayman bank."""
+
+    _attr_icon = "mdi:bank"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_cayman_bank"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money Cayman Bank"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("money", {}).get("cayman_bank")
+        return None
+
+
+class TornMoneyCityBankSensor(TornSensor):
+    """Sensor for city bank."""
+
+    _attr_icon = "mdi:bank"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_city_bank"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money City Bank"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("money", {}).get("city_bank")
+        return None
+
+
+class TornMoneyFactionSensor(TornSensor):
+    """Sensor for faction funds."""
+
+    _attr_icon = "mdi:account-group"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_faction"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money Faction"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("money", {}).get("faction")
+        return None
+
+
+class TornMoneyDailyNetworthSensor(TornSensor):
+    """Sensor for daily networth."""
+
+    _attr_icon = "mdi:chart-line"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_daily_networth"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money Daily Networth"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("money", {}).get("daily_networth")
+        return None
+
+
+# ============================================================================
+# Travel Sensors
+# ============================================================================
+
+
+class TornTravelDestinationSensor(TornSensor):
+    """Sensor for travel destination."""
+
+    _attr_icon = "mdi:airplane"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_travel_destination"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Travel Destination"
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("travel", {}).get("destination")
+        return None
+
+
+class TornTravelMethodSensor(TornSensor):
+    """Sensor for travel method."""
+
+    _attr_icon = "mdi:airplane-takeoff"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_travel_method"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Travel Method"
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the state."""
+        if self.coordinator.data:
+            method = self.coordinator.data.get("travel", {}).get("method")
+            return str(method) if method else None
+        return None
+
+
+class TornTravelDepartedAtSensor(TornSensor):
+    """Sensor for travel departed timestamp."""
+
+    _attr_icon = "mdi:clock-start"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_travel_departed_at"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Travel Departed At"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the state."""
+        if self.coordinator.data:
+            timestamp = self.coordinator.data.get("travel", {}).get("departed_at")
+            if timestamp:
+                return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+        return None
+
+
+class TornTravelArrivalAtSensor(TornSensor):
+    """Sensor for travel arrival timestamp."""
+
+    _attr_icon = "mdi:clock-end"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_travel_arrival_at"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Travel Arrival At"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the state."""
+        if self.coordinator.data:
+            timestamp = self.coordinator.data.get("travel", {}).get("arrival_at")
+            if timestamp:
+                return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+        return None
+
+
+class TornTravelTimeLeftSensor(TornSensor):
+    """Sensor for travel time left."""
+
+    _attr_icon = "mdi:timer-sand"
+    _attr_native_unit_of_measurement = "s"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_travel_time_left"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Travel Time Left"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("travel", {}).get("time_left")
+        return None
+
+
+# ============================================================================
+# Skills Sensors (Dynamic)
+# ============================================================================
+
+
+class TornSkillSensor(TornSensor):
+    """Sensor for a skill."""
+
+    _attr_icon = "mdi:school"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: TornDataUpdateCoordinator,
+        entry: ConfigEntry,
+        skill: dict,
+    ) -> None:
+        """Initialize the skill sensor."""
+        super().__init__(coordinator, entry)
+        self.skill_slug = skill.get("slug", "")
+        self.skill_name = skill.get("name", "")
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_skills_{self.skill_slug}"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return f"Skills {self.skill_name}"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data and "skills" in self.coordinator.data:
+            skills = self.coordinator.data["skills"]
+            if skills and isinstance(skills, list):
+                for skill in skills:
+                    if skill.get("slug") == self.skill_slug:
+                        return skill.get("level")
+        return None
+
+
+# ============================================================================
+# Log Sensor
+# ============================================================================
+
+
+class TornLogLatestSensor(TornSensor):
+    """Sensor for latest log entries."""
+
+    _attr_icon = "mdi:text-box-multiple"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_log_latest"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Log Latest"
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the state (latest log entry)."""
+        if self.coordinator.data and "log" in self.coordinator.data:
+            logs = self.coordinator.data["log"]
+            if logs and isinstance(logs, list) and len(logs) > 0:
+                latest = logs[0]
+                return latest.get("details", {}).get("title", "")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes with all log entries."""
+        if self.coordinator.data and "log" in self.coordinator.data:
+            logs = self.coordinator.data["log"]
+            if logs and isinstance(logs, list):
+                entries = []
+                for i, log_entry in enumerate(logs[:5]):  # Latest 5
+                    entries.append({
+                        "id": log_entry.get("id"),
+                        "timestamp": log_entry.get("timestamp"),
+                        "title": log_entry.get("details", {}).get("title"),
+                        "category": log_entry.get("details", {}).get("category"),
+                    })
+                return {"entries": entries, "count": len(entries)}
+        return {}

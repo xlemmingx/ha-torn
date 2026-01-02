@@ -20,7 +20,14 @@ DEFAULT_SCAN_INTERVAL = 60  # 1 minute
 API_ENDPOINTS = [
     {"path": "/user/basic", "key": "profile"},
     {"path": "/user/personalstats", "key": "personalstats", "params": {"cat": "all"}},
+    {"path": "/user/bars", "key": "bars"},
+    {"path": "/user/cooldowns", "key": "cooldowns"},
+    {"path": "/user/money", "key": "money"},
+    {"path": "/user/skills", "key": "skills"},
+    {"path": "/user/travel", "key": "travel"},
+    {"path": "/user/log", "key": "log", "params": {"limit": "10"}},
     # Add more endpoints as needed:
+    # {"path": "/user/organizedcrime", "key": "organizedcrime"},
     # {"path": "/user/crimes", "key": "crimes"},
     # {"path": "/user/attacks", "key": "attacks", "params": {"limit": "100"}},
 ]

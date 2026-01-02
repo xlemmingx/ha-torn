@@ -20,7 +20,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_API_KEY): str,
         vol.Optional(CONF_UPDATE_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
-            vol.Coerce(int), vol.Range(min=30, max=3600)
+            vol.Coerce(int), vol.Range(min=1, max=3600)
         ),
     }
 )

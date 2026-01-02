@@ -61,7 +61,13 @@ async def async_setup_entry(
         TornMoneyVaultSensor(coordinator, entry),
         TornMoneyCaymanBankSensor(coordinator, entry),
         TornMoneyCityBankSensor(coordinator, entry),
+        TornMoneyCityBankProfitSensor(coordinator, entry),
+        TornMoneyCityBankDurationSensor(coordinator, entry),
+        TornMoneyCityBankInterestRateSensor(coordinator, entry),
+        TornMoneyCityBankUntilSensor(coordinator, entry),
+        TornMoneyCityBankInvestedAtSensor(coordinator, entry),
         TornMoneyFactionSensor(coordinator, entry),
+        TornMoneyFactionPointsSensor(coordinator, entry),
         TornMoneyDailyNetworthSensor(coordinator, entry),
         # Travel sensors
         TornTravelDestinationSensor(coordinator, entry),
@@ -816,6 +822,170 @@ class TornMoneyDailyNetworthSensor(TornSensor):
         """Return the state."""
         if self.coordinator.data:
             return self.coordinator.data.get("money", {}).get("daily_networth")
+        return None
+
+
+class TornMoneyCityBankProfitSensor(TornSensor):
+    """Sensor for city bank profit."""
+
+    _attr_icon = "mdi:cash-plus"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_city_bank_profit"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money City Bank Profit"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            city_bank = self.coordinator.data.get("money", {}).get("city_bank", {})
+            if isinstance(city_bank, dict):
+                return city_bank.get("profit")
+        return None
+
+
+class TornMoneyCityBankDurationSensor(TornSensor):
+    """Sensor for city bank investment duration."""
+
+    _attr_icon = "mdi:calendar-clock"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "days"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_city_bank_duration"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money City Bank Duration"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            city_bank = self.coordinator.data.get("money", {}).get("city_bank", {})
+            if isinstance(city_bank, dict):
+                return city_bank.get("duration")
+        return None
+
+
+class TornMoneyCityBankInterestRateSensor(TornSensor):
+    """Sensor for city bank interest rate."""
+
+    _attr_icon = "mdi:percent"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "%"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_city_bank_interest_rate"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money City Bank Interest Rate"
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the state."""
+        if self.coordinator.data:
+            city_bank = self.coordinator.data.get("money", {}).get("city_bank", {})
+            if isinstance(city_bank, dict):
+                return city_bank.get("interest_rate")
+        return None
+
+
+class TornMoneyCityBankUntilSensor(TornSensor):
+    """Sensor for city bank investment end time."""
+
+    _attr_icon = "mdi:clock-end"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_city_bank_until"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money City Bank Until"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the state."""
+        if self.coordinator.data:
+            city_bank = self.coordinator.data.get("money", {}).get("city_bank", {})
+            if isinstance(city_bank, dict):
+                until_timestamp = city_bank.get("until")
+                if until_timestamp:
+                    return datetime.fromtimestamp(until_timestamp, tz=timezone.utc)
+        return None
+
+
+class TornMoneyCityBankInvestedAtSensor(TornSensor):
+    """Sensor for city bank investment start time."""
+
+    _attr_icon = "mdi:clock-start"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_city_bank_invested_at"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money City Bank Invested At"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the state."""
+        if self.coordinator.data:
+            city_bank = self.coordinator.data.get("money", {}).get("city_bank", {})
+            if isinstance(city_bank, dict):
+                invested_at = city_bank.get("invested_at")
+                if invested_at:
+                    return datetime.fromtimestamp(invested_at, tz=timezone.utc)
+        return None
+
+
+class TornMoneyFactionPointsSensor(TornSensor):
+    """Sensor for faction points."""
+
+    _attr_icon = "mdi:star-circle"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_money_faction_points"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Money Faction Points"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            faction = self.coordinator.data.get("money", {}).get("faction", {})
+            if isinstance(faction, dict):
+                return faction.get("points")
         return None
 
 

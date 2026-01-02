@@ -97,16 +97,9 @@ class TornSensor(CoordinatorEntity[TornDataUpdateCoordinator], SensorEntity):
         self._attr_has_entity_name = True
 
         # Set up device info
-        player_name = "Torn City"
-        player_id = None
-        if coordinator.data and "profile" in coordinator.data:
-            profile = coordinator.data["profile"]
-            player_name = profile.get("name", "Torn City")
-            player_id = profile.get("id")
-
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name=f"Torn {player_name}",
+            name="Torn",
             manufacturer="Torn City",
             model="Player Account",
             entry_type=DeviceEntryType.SERVICE,

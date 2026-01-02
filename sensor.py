@@ -1205,6 +1205,8 @@ class TornLogLatestSensor(TornSensor):
                         "timestamp": log_entry.get("timestamp"),
                         "title": log_entry.get("details", {}).get("title"),
                         "category": log_entry.get("details", {}).get("category"),
+                        "data": log_entry.get("data", {}),
+                        "params": log_entry.get("params", {}),
                     })
                 return {"entries": entries, "count": len(entries)}
         return {}

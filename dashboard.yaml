@@ -177,6 +177,17 @@ views:
 
           {% if entries %}
           {% for entry in entries %}
-          - **{{ entry.timestamp | timestamp_custom('%H:%M:%S', True) }}**: {{ entry.title }}
+          ---
+          **{{ entry.timestamp | timestamp_custom('%Y-%m-%d %H:%M:%S', True) }}** - *{{ entry.category }}*
+
+          {{ entry.title }}
+          {% if entry.data %}
+
+          Data: {{ entry.data }}
+          {% endif %}
+          {% if entry.params %}
+
+          Params: {{ entry.params }}
+          {% endif %}
           {% endfor %}
           {% endif %}

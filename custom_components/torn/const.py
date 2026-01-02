@@ -15,10 +15,11 @@ DEFAULT_SCAN_INTERVAL = 300  # 5 minutes
 
 # API Endpoints to fetch
 # Add new endpoints here to extend functionality
+# Format: {"path": "/endpoint", "key": "data_key", "params": {"param": "value"}}
 API_ENDPOINTS = [
     {"path": "/user/basic", "key": "profile"},
-    {"path": "/user/personalstats", "key": "personalstats"},
+    {"path": "/user/personalstats", "key": "personalstats", "params": {"cat": "all"}},
     # Add more endpoints as needed:
     # {"path": "/user/crimes", "key": "crimes"},
-    # {"path": "/user/attacks", "key": "attacks"},
+    # {"path": "/user/attacks", "key": "attacks", "params": {"limit": "100"}},
 ]

@@ -44,11 +44,14 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             for endpoint_config in API_ENDPOINTS:
                 path = endpoint_config["path"]
                 data_key = endpoint_config["key"]
+                params = endpoint_config.get("params", {})
 
-                url = f"{API_BASE_URL}{path}?key={self.api_key}"
+                # Build URL with query parameters
+                url = f"{API_BASE_URL}{path}"
+                query_params = {"key": self.api_key, **params}
 
                 async with self.session.get(
-                    url, timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)
+                    url, params=query_params, timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)
                 ) as response:
                     if response.status != 200:
                         raise UpdateFailed(

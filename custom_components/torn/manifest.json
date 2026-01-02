@@ -1,0 +1,12 @@
+{
+  "domain": "torn",
+  "name": "Torn City",
+  "codeowners": ["@xlemmingx"],
+  "config_flow": true,
+  "documentation": "https://github.com/xlemmingx/ha-torn",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/xlemmingx/ha-torn/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

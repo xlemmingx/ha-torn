@@ -759,7 +759,9 @@ class TornMoneyCityBankSensor(TornSensor):
     def native_value(self) -> int | None:
         """Return the state."""
         if self.coordinator.data:
-            return self.coordinator.data.get("money", {}).get("city_bank")
+            city_bank = self.coordinator.data.get("money", {}).get("city_bank", {})
+            if isinstance(city_bank, dict):
+                return city_bank.get("amount")
         return None
 
 
@@ -785,7 +787,9 @@ class TornMoneyFactionSensor(TornSensor):
     def native_value(self) -> int | None:
         """Return the state."""
         if self.coordinator.data:
-            return self.coordinator.data.get("money", {}).get("faction")
+            faction = self.coordinator.data.get("money", {}).get("faction", {})
+            if isinstance(faction, dict):
+                return faction.get("money")
         return None
 
 

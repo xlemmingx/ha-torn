@@ -14,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 
 from .const import DOMAIN
 from .coordinator import TornDataUpdateCoordinator
@@ -94,6 +95,22 @@ class TornSensor(CoordinatorEntity[TornDataUpdateCoordinator], SensorEntity):
         super().__init__(coordinator)
         self.entry = entry
         self._attr_has_entity_name = True
+
+        # Set up device info
+        player_name = "Torn City"
+        player_id = None
+        if coordinator.data and "profile" in coordinator.data:
+            profile = coordinator.data["profile"]
+            player_name = profile.get("name", "Torn City")
+            player_id = profile.get("id")
+
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=f"Torn {player_name}",
+            manufacturer="Torn City",
+            model="Player Account",
+            entry_type=DeviceEntryType.SERVICE,
+        )
 
     @property
     def available(self) -> bool:

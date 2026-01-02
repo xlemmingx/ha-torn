@@ -162,12 +162,6 @@ views:
               - entity: sensor.torn_travel_time_left
                 name: Time Left
       - type: markdown
-        title: Skills
-        content: |
-          Skill sensors werden dynamisch erstellt als `sensor.torn_skill_*`.
-
-          Füge sie über den Entity Picker hinzu (suche nach "torn skill").
-      - type: markdown
         title: Recent Activity Log
         content: |
           {% set latest = states('sensor.torn_log_latest') %}

@@ -5,186 +5,153 @@ views:
     badges: []
     cards:
       # Profile Section
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Profile & Status
-          - type: entities
-            entities:
-              - entity: sensor.torn_profile_name
-                name: Player Name
-              - entity: sensor.torn_profile_level
-                name: Level
-              - entity: sensor.torn_profile_status
-                name: Status
+      - type: entities
+        title: Profile & Status
+        entities:
+          - entity: sensor.torn_profile_name
+            name: Player Name
+          - entity: sensor.torn_profile_level
+            name: Level
+          - entity: sensor.torn_profile_status
+            name: Status
 
       # Battle Stats Section
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Battle Stats
-          - type: entities
-            entities:
-              - entity: sensor.torn_battlestats_strength
-                name: Strength
-              - entity: sensor.torn_battlestats_defense
-                name: Defense
-              - entity: sensor.torn_battlestats_speed
-                name: Speed
-              - entity: sensor.torn_battlestats_dexterity
-                name: Dexterity
-              - entity: sensor.torn_battlestats_total
-                name: Total Battle Stats
-                icon: mdi:sword-cross
+      - type: entities
+        title: Battle Stats
+        entities:
+          - entity: sensor.torn_battlestats_strength
+            name: Strength
+          - entity: sensor.torn_battlestats_defense
+            name: Defense
+          - entity: sensor.torn_battlestats_speed
+            name: Speed
+          - entity: sensor.torn_battlestats_dexterity
+            name: Dexterity
+          - entity: sensor.torn_battlestats_total
+            name: Total Battle Stats
+            icon: mdi:sword-cross
 
       # Bars Section with Gauges
-      - type: vertical-stack
+      - type: horizontal-stack
         cards:
-          - type: markdown
-            content: |
-              ## Bars
-          - type: horizontal-stack
-            cards:
-              - type: gauge
-                entity: sensor.torn_bars_energy
-                name: Energy
-                min: 0
-                max: 100
-                severity:
-                  green: 75
-                  yellow: 40
-                  red: 0
-              - type: gauge
-                entity: sensor.torn_bars_nerve
-                name: Nerve
-                min: 0
-                max: 100
-                severity:
-                  green: 75
-                  yellow: 40
-                  red: 0
-          - type: horizontal-stack
-            cards:
-              - type: gauge
-                entity: sensor.torn_bars_happy
-                name: Happy
-                min: 0
-                max: 100
-                severity:
-                  green: 75
-                  yellow: 40
-                  red: 0
-              - type: gauge
-                entity: sensor.torn_bars_life
-                name: Life
-                min: 0
-                max: 100
-                severity:
-                  green: 75
-                  yellow: 40
-                  red: 0
           - type: gauge
-            entity: sensor.torn_bars_chain
-            name: Chain
+            entity: sensor.torn_bars_energy
+            name: Energy
             min: 0
             max: 100
+            severity:
+              green: 75
+              yellow: 40
+              red: 0
+          - type: gauge
+            entity: sensor.torn_bars_nerve
+            name: Nerve
+            min: 0
+            max: 100
+            severity:
+              green: 75
+              yellow: 40
+              red: 0
+
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            entity: sensor.torn_bars_happy
+            name: Happy
+            min: 0
+            max: 100
+            severity:
+              green: 75
+              yellow: 40
+              red: 0
+          - type: gauge
+            entity: sensor.torn_bars_life
+            name: Life
+            min: 0
+            max: 100
+            severity:
+              green: 75
+              yellow: 40
+              red: 0
+
+      - type: gauge
+        entity: sensor.torn_bars_chain
+        name: Chain
+        min: 0
+        max: 100
 
       # Cooldowns Section
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Cooldowns
-          - type: entities
-            entities:
-              - entity: sensor.torn_cooldowns_drug
-                name: Drug Cooldown
-                icon: mdi:pill
-              - entity: sensor.torn_cooldowns_medical
-                name: Medical Cooldown
-                icon: mdi:hospital-box
-              - entity: sensor.torn_cooldowns_booster
-                name: Booster Cooldown
-                icon: mdi:rocket-launch
+      - type: entities
+        title: Cooldowns
+        entities:
+          - entity: sensor.torn_cooldowns_drug
+            name: Drug Cooldown
+            icon: mdi:pill
+          - entity: sensor.torn_cooldowns_medical
+            name: Medical Cooldown
+            icon: mdi:hospital-box
+          - entity: sensor.torn_cooldowns_booster
+            name: Booster Cooldown
+            icon: mdi:rocket-launch
 
       # Money Section
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Money
-          - type: entities
-            entities:
-              - entity: sensor.torn_money_wallet
-                name: Wallet
-              - entity: sensor.torn_money_vault
-                name: Vault
-              - entity: sensor.torn_money_city_bank
-                name: City Bank
-              - entity: sensor.torn_money_cayman_bank
-                name: Cayman Bank
-              - entity: sensor.torn_money_company
-                name: Company Funds
-              - entity: sensor.torn_money_faction
-                name: Faction Balance
-              - type: divider
-              - entity: sensor.torn_money_points
-                name: Points
-              - entity: sensor.torn_money_daily_networth
-                name: Daily Networth
+      - type: entities
+        title: Money
+        entities:
+          - entity: sensor.torn_money_wallet
+            name: Wallet
+          - entity: sensor.torn_money_vault
+            name: Vault
+          - entity: sensor.torn_money_city_bank
+            name: City Bank
+          - entity: sensor.torn_money_cayman_bank
+            name: Cayman Bank
+          - entity: sensor.torn_money_company
+            name: Company Funds
+          - entity: sensor.torn_money_faction
+            name: Faction Balance
+          - type: divider
+          - entity: sensor.torn_money_points
+            name: Points
+          - entity: sensor.torn_money_daily_networth
+            name: Daily Networth
 
       # Travel Section
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Travel
-          - type: entities
-            entities:
-              - entity: sensor.torn_travel_destination
-                name: Destination
-              - entity: sensor.torn_travel_method
-                name: Travel Method
-              - entity: sensor.torn_travel_departed_at
-                name: Departed At
-              - entity: sensor.torn_travel_arrival_at
-                name: Arrival At
-              - entity: sensor.torn_travel_time_left
-                name: Time Left
+      - type: entities
+        title: Travel
+        entities:
+          - entity: sensor.torn_travel_destination
+            name: Destination
+          - entity: sensor.torn_travel_method
+            name: Travel Method
+          - entity: sensor.torn_travel_departed_at
+            name: Departed At
+          - entity: sensor.torn_travel_arrival_at
+            name: Arrival At
+          - entity: sensor.torn_travel_time_left
+            name: Time Left
 
       # Skills Section
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Skills
-          - type: auto-entities
-            card:
-              type: entities
-              title: All Skills
-            filter:
-              include:
-                - entity_id: sensor.torn_skill_*
-              exclude: []
-            sort:
-              method: name
+      # Note: Skill sensors are dynamically created as sensor.torn_skill_<skill_name>
+      # Add them manually here or use the entity filter in the UI
+      - type: markdown
+        title: Skills
+        content: |
+          Skills are available as individual sensors with the pattern `sensor.torn_skill_*`.
+
+          To add them to your dashboard, use the entity picker and search for "torn skill".
 
       # Log Section
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Recent Activity Log
-          - type: markdown
-            entity_id: sensor.torn_log_latest
-            content: |
-              **Latest:** {{ states('sensor.torn_log_latest') }}
+      - type: markdown
+        title: Recent Activity Log
+        content: |
+          {% set latest = states('sensor.torn_log_latest') %}
+          {% set entries = state_attr('sensor.torn_log_latest', 'entries') %}
 
-              {% set attrs = state_attr('sensor.torn_log_latest', 'entries') %}
-              {% if attrs %}
-              {% for entry in attrs %}
-              - {{ entry.timestamp | timestamp_custom('%H:%M:%S', True) }}: {{ entry.log }}
-              {% endfor %}
-              {% endif %}
+          **Latest:** {{ latest if latest != 'unknown' else 'No recent activity' }}
+
+          {% if entries %}
+          {% for entry in entries %}
+          - **{{ entry.timestamp | timestamp_custom('%H:%M:%S', True) }}**: {{ entry.log }}
+          {% endfor %}
+          {% endif %}

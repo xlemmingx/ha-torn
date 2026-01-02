@@ -25,7 +25,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 async def validate_api_key(api_key: str, session: aiohttp.ClientSession) -> dict[str, Any]:
     """Validate the API key by making a test request."""
-    url = f"{API_BASE_URL}/user/?selections=basic&key={api_key}"
+    url = f"{API_BASE_URL}/user/basic?key={api_key}"
 
     try:
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)) as response:
@@ -33,7 +33,8 @@ async def validate_api_key(api_key: str, session: aiohttp.ClientSession) -> dict
                 data = await response.json()
                 if "error" in data:
                     return {"error": data["error"]["error"]}
-                return {"title": data.get("name", "Torn City"), "user_id": data.get("player_id")}
+                profile = data.get("profile", {})
+                return {"title": profile.get("name", "Torn City"), "user_id": profile.get("id")}
             return {"error": f"HTTP {response.status}"}
     except aiohttp.ClientError as err:
         _LOGGER.error("Error connecting to Torn API: %s", err)

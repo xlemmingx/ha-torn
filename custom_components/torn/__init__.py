@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import DOMAIN, CONF_API_KEY, DEFAULT_SCAN_INTERVAL
+from .coordinator import TornDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,10 +21,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Torn City from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
-    # Store the API key and session for use by platforms
+    # Create the data update coordinator
+    session = async_get_clientsession(hass)
+    coordinator = TornDataUpdateCoordinator(
+        hass,
+        session,
+        entry.data[CONF_API_KEY],
+        timedelta(seconds=DEFAULT_SCAN_INTERVAL),
+    )
+
+    # Fetch initial data
+    await coordinator.async_config_entry_first_refresh()
+
+    # Store coordinator and API key for use by platforms
     hass.data[DOMAIN][entry.entry_id] = {
         CONF_API_KEY: entry.data[CONF_API_KEY],
-        "session": async_get_clientsession(hass),
+        "session": session,
+        "coordinator": coordinator,
     }
 
     # Forward the setup to the sensor platform

@@ -6,6 +6,47 @@ A comprehensive Home Assistant custom integration for [Torn City](https://www.to
 [![GitHub Release](https://img.shields.io/github/release/xlemmingx/ha-torn.svg)](https://github.com/xlemmingx/ha-torn/releases)
 [![License](https://img.shields.io/github/license/xlemmingx/ha-torn.svg)](LICENSE)
 
+## Installation
+
+### HACS (Recommended)
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=xlemmingx&repository=ha-torn&category=integration)
+
+**Or manually:**
+
+1. Open HACS in Home Assistant
+2. Go to "Integrations"
+3. Click the three dots in the top right corner
+4. Select "Custom repositories"
+5. Add this repository URL: `https://github.com/xlemmingx/ha-torn`
+6. Select category "Integration"
+7. Click "Add"
+8. Search for "Torn City" and install
+9. Restart Home Assistant
+
+### Manual Installation
+
+1. Download the latest release from the [releases page](https://github.com/xlemmingx/ha-torn/releases)
+2. Copy all files to your Home Assistant's `config/custom_components/torn/` directory
+3. Restart Home Assistant
+
+## Configuration
+
+1. Go to Settings → Devices & Services
+2. Click "+ Add Integration"
+3. Search for "Torn City"
+4. Enter your Torn City API key
+   - **Recommended:** Use a [Full Access API key](https://www.torn.com/preferences.php#tab=api?step=addNewKey&title=Home%20Assistant&type=4) for complete functionality
+   - You can create or manage API keys at [Torn Preferences](https://www.torn.com/preferences.php#tab=api)
+5. Configure the update interval (default: 60 seconds, range: 30-3600 seconds)
+6. Click "Submit"
+
+### API Key Permissions
+
+- **Minimal Access:** Basic player information only
+- **Limited Access:** Includes cooldowns, money, travel, and logs
+- **Full Access:** Recommended - includes all features, especially battle stats
+
 ## Features
 
 This integration creates sensors for all your Torn City data:
@@ -35,99 +76,7 @@ This integration creates sensors for all your Torn City data:
 ### Skills
 - Dynamic sensors for each of your character's skills
 
-## Installation
-
-### HACS (Recommended)
-
-1. Open HACS in Home Assistant
-2. Go to "Integrations"
-3. Click the three dots in the top right corner
-4. Select "Custom repositories"
-5. Add this repository URL: `https://github.com/xlemmingx/ha-torn`
-6. Select category "Integration"
-7. Click "Add"
-8. Search for "Torn City" and install
-9. Restart Home Assistant
-
-### Manual Installation
-
-1. Download the latest release from the [releases page](https://github.com/xlemmingx/ha-torn/releases)
-2. Copy the entire `custom_components/torn` folder to your Home Assistant's `custom_components` directory
-3. Restart Home Assistant
-
-## Configuration
-
-1. Go to Settings → Devices & Services
-2. Click "+ Add Integration"
-3. Search for "Torn City"
-4. Enter your Torn City API key
-   - **Recommended:** Use a [Full Access API key](https://www.torn.com/preferences.php#tab=api?step=addNewKey&title=Home%20Assistant&type=4) for complete functionality
-   - You can create or manage API keys at [Torn Preferences](https://www.torn.com/preferences.php#tab=api)
-5. Configure the update interval (default: 60 seconds, range: 30-3600 seconds)
-6. Click "Submit"
-
-### API Key Permissions
-
-- **Minimal Access:** Basic player information only
-- **Limited Access:** Includes cooldowns, money, travel, and logs
-- **Full Access:** Recommended - includes all features, especially battle stats
-
-## Sensors
-
-All sensors are prefixed with `sensor.torn_` and grouped by category:
-
-### Profile Sensors
-- `sensor.torn_profile_name`
-- `sensor.torn_profile_level`
-- `sensor.torn_profile_status`
-
-### Battle Stats Sensors
-- `sensor.torn_battlestats_strength`
-- `sensor.torn_battlestats_defense`
-- `sensor.torn_battlestats_speed`
-- `sensor.torn_battlestats_dexterity`
-- `sensor.torn_battlestats_total`
-
-### Bars Sensors
-- `sensor.torn_bars_energy`
-- `sensor.torn_bars_nerve`
-- `sensor.torn_bars_happy`
-- `sensor.torn_bars_life`
-- `sensor.torn_bars_chain`
-
-### Cooldowns Sensors (timestamps)
-- `sensor.torn_cooldowns_drug`
-- `sensor.torn_cooldowns_medical`
-- `sensor.torn_cooldowns_booster`
-
-### Money Sensors
-- `sensor.torn_money_wallet`
-- `sensor.torn_money_vault`
-- `sensor.torn_money_cayman_bank`
-- `sensor.torn_money_city_bank`
-- `sensor.torn_money_city_bank_profit`
-- `sensor.torn_money_city_bank_interest_rate`
-- `sensor.torn_money_city_bank_duration`
-- `sensor.torn_money_city_bank_invested_at`
-- `sensor.torn_money_city_bank_until`
-- `sensor.torn_money_company`
-- `sensor.torn_money_faction`
-- `sensor.torn_money_faction_points`
-- `sensor.torn_money_points`
-- `sensor.torn_money_daily_networth`
-
-### Travel Sensors
-- `sensor.torn_travel_destination`
-- `sensor.torn_travel_method`
-- `sensor.torn_travel_departed_at`
-- `sensor.torn_travel_arrival_at`
-- `sensor.torn_travel_time_left`
-
-### Log Sensor
-- `sensor.torn_log_latest` (includes last 5 activity entries as attributes)
-
-### Skill Sensors
-- `sensor.torn_skill_*` (dynamically created based on your skills)
+All sensors are prefixed with `sensor.torn_` and grouped by category for easy identification.
 
 ## Example Dashboard
 

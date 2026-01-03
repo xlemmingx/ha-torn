@@ -3,7 +3,7 @@
 DOMAIN = "torn"
 
 # API Configuration
-API_BASE_URL = "https://api.torn.com/v2"
+API_BASE_URL = "https://api.torn.com"
 API_TIMEOUT = 10
 API_RATE_LIMIT = 100  # requests per minute
 
@@ -18,16 +18,18 @@ DEFAULT_SCAN_INTERVAL = 60  # 1 minute
 # Add new endpoints here to extend functionality
 # Format: {"path": "/endpoint", "key": "data_key", "params": {"param": "value"}}
 API_ENDPOINTS = [
-    {"path": "/user/basic", "key": "profile"},
-    {"path": "/user/personalstats", "key": "personalstats", "params": {"cat": "all"}},
-    {"path": "/user/bars", "key": "bars"},
-    {"path": "/user/cooldowns", "key": "cooldowns"},
-    {"path": "/user/money", "key": "money"},
-    {"path": "/user/skills", "key": "skills"},
-    {"path": "/user/travel", "key": "travel"},
-    {"path": "/user/log", "key": "log", "params": {"limit": "10"}},
+    {"path": "/v2/user/basic", "key": "profile"},
+    {"path": "/v2/user/personalstats", "key": "personalstats", "params": {"cat": "all"}},
+    {"path": "/v2/user/bars", "key": "bars"},
+    {"path": "/v2/user/cooldowns", "key": "cooldowns"},
+    {"path": "/v2/user/money", "key": "money"},
+    {"path": "/v2/user/skills", "key": "skills"},
+    {"path": "/v2/user/travel", "key": "travel"},
+    {"path": "/v2/user/log", "key": "log", "params": {"limit": "10"}},
+    {"path": "/company", "key": "company_detailed", "params": {"selections": "detailed"}},
+    {"path": "/company", "key": "company"},
     # Add more endpoints as needed:
-    # {"path": "/user/organizedcrime", "key": "organizedcrime"},
-    # {"path": "/user/crimes", "key": "crimes"},
-    # {"path": "/user/attacks", "key": "attacks", "params": {"limit": "100"}},
+    # {"path": "/v2/user/organizedcrime", "key": "organizedcrime"},
+    # {"path": "/v2/user/crimes", "key": "crimes"},
+    # {"path": "/v2/user/attacks", "key": "attacks", "params": {"limit": "100"}},
 ]

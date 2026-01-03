@@ -77,6 +77,17 @@ async def async_setup_entry(
         TornTravelTimeLeftSensor(coordinator, entry),
         # Log sensor
         TornLogLatestSensor(coordinator, entry),
+        # Company sensors
+        TornCompanyFundsSensor(coordinator, entry),
+        TornCompanyPopularitySensor(coordinator, entry),
+        TornCompanyEfficiencySensor(coordinator, entry),
+        TornCompanyEnvironmentSensor(coordinator, entry),
+        TornCompanyTrainsAvailableSensor(coordinator, entry),
+        TornCompanyAdvertisingBudgetSensor(coordinator, entry),
+        TornCompanyRatingSensor(coordinator, entry),
+        TornCompanyNameSensor(coordinator, entry),
+        TornCompanyDailyIncomeSensor(coordinator, entry),
+        TornCompanyWeeklyIncomeSensor(coordinator, entry),
     ]
 
     # Add dynamic skill sensors
@@ -1210,3 +1221,253 @@ class TornLogLatestSensor(TornSensor):
                     })
                 return {"entries": entries, "count": len(entries)}
         return {}
+
+
+class TornCompanyFundsSensor(TornSensor):
+    """Sensor for company funds."""
+
+    _attr_icon = "mdi:cash-multiple"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_funds"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Funds"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company_detailed", {}).get("company_funds")
+        return None
+
+
+class TornCompanyPopularitySensor(TornSensor):
+    """Sensor for company popularity."""
+
+    _attr_icon = "mdi:star"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "%"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_popularity"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Popularity"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company_detailed", {}).get("popularity")
+        return None
+
+
+class TornCompanyEfficiencySensor(TornSensor):
+    """Sensor for company efficiency."""
+
+    _attr_icon = "mdi:gauge"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "%"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_efficiency"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Efficiency"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company_detailed", {}).get("efficiency")
+        return None
+
+
+class TornCompanyEnvironmentSensor(TornSensor):
+    """Sensor for company environment."""
+
+    _attr_icon = "mdi:flower"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "%"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_environment"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Environment"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company_detailed", {}).get("environment")
+        return None
+
+
+class TornCompanyTrainsAvailableSensor(TornSensor):
+    """Sensor for company trains available."""
+
+    _attr_icon = "mdi:dumbbell"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_trains_available"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Trains Available"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company_detailed", {}).get("trains_available")
+        return None
+
+
+class TornCompanyAdvertisingBudgetSensor(TornSensor):
+    """Sensor for company advertising budget."""
+
+    _attr_icon = "mdi:bullhorn"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_advertising_budget"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Advertising Budget"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company_detailed", {}).get("advertising_budget")
+        return None
+
+
+class TornCompanyRatingSensor(TornSensor):
+    """Sensor for company rating."""
+
+    _attr_icon = "mdi:star-circle"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_rating"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Rating"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company", {}).get("rating")
+        return None
+
+
+class TornCompanyNameSensor(TornSensor):
+    """Sensor for company name."""
+
+    _attr_icon = "mdi:office-building"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_name"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Name"
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company", {}).get("name")
+        return None
+
+
+class TornCompanyDailyIncomeSensor(TornSensor):
+    """Sensor for company daily income."""
+
+    _attr_icon = "mdi:cash-clock"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_daily_income"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Daily Income"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company", {}).get("daily_income")
+        return None
+
+
+class TornCompanyWeeklyIncomeSensor(TornSensor):
+    """Sensor for company weekly income."""
+
+    _attr_icon = "mdi:calendar-cash"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_company_weekly_income"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Company Weekly Income"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state."""
+        if self.coordinator.data:
+            return self.coordinator.data.get("company", {}).get("weekly_income")
+        return None

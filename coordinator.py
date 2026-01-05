@@ -37,15 +37,16 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from Torn City API."""
-        try:
-            combined_data = {}
+        combined_data = {}
+        errors = []
 
-            # Fetch data from all configured endpoints
-            for endpoint_config in API_ENDPOINTS:
-                path = endpoint_config["path"]
-                data_key = endpoint_config["key"]
-                params = endpoint_config.get("params", {})
+        # Fetch data from all configured endpoints
+        for endpoint_config in API_ENDPOINTS:
+            path = endpoint_config["path"]
+            data_key = endpoint_config["key"]
+            params = endpoint_config.get("params", {})
 
+            try:
                 # Build URL with query parameters
                 url = f"{API_BASE_URL}{path}"
                 query_params = {"key": self.api_key, **params}
@@ -54,24 +55,38 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     url, params=query_params, timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)
                 ) as response:
                     if response.status != 200:
-                        raise UpdateFailed(
-                            f"Error fetching {path}: HTTP {response.status}"
-                        )
+                        error_msg = f"HTTP {response.status} on {path}"
+                        _LOGGER.warning(error_msg)
+                        errors.append(error_msg)
+                        continue
 
                     data = await response.json()
 
                     if "error" in data:
-                        raise UpdateFailed(
-                            f"API error on {path}: {data['error'].get('error', 'Unknown error')}"
-                        )
+                        error_msg = f"{data['error'].get('error', 'Unknown error')} on {path}"
+                        _LOGGER.warning(f"API error: {error_msg}")
+                        errors.append(error_msg)
+                        continue
 
                     # Extract the actual data using the configured key
                     # The response structure is typically {"key": {...}}
                     combined_data[data_key] = data.get(data_key, {})
 
-            return combined_data
+            except aiohttp.ClientError as err:
+                error_msg = f"Network error on {path}: {err}"
+                _LOGGER.warning(error_msg)
+                errors.append(error_msg)
+            except Exception as err:
+                error_msg = f"Unexpected error on {path}: {err}"
+                _LOGGER.warning(error_msg)
+                errors.append(error_msg)
 
-        except aiohttp.ClientError as err:
-            raise UpdateFailed(f"Error communicating with API: {err}") from err
-        except Exception as err:
-            raise UpdateFailed(f"Unexpected error: {err}") from err
+        # If no data was retrieved at all, raise UpdateFailed
+        if not combined_data:
+            raise UpdateFailed(f"Failed to fetch any data. Errors: {', '.join(errors)}")
+
+        # Log summary if there were any errors
+        if errors:
+            _LOGGER.info(f"Update completed with {len(errors)} endpoint error(s): {', '.join(errors)}")
+
+        return combined_data

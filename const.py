@@ -28,6 +28,7 @@ API_ENDPOINTS = [
     {"path": "/v2/user/log", "key": "log", "params": {"limit": "10"}},
     {"path": "/company", "key": "company_detailed", "params": {"selections": "detailed"}},
     {"path": "/company", "key": "company"},
+    {"path": "/user", "key": "refills", "params": {"selections": "refills"}},
     # Add more endpoints as needed:
     # {"path": "/v2/user/organizedcrime", "key": "organizedcrime"},
     # {"path": "/v2/user/crimes", "key": "crimes"},

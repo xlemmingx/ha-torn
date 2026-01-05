@@ -28,7 +28,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 async def validate_api_key(api_key: str, session: aiohttp.ClientSession) -> dict[str, Any]:
     """Validate the API key by making a test request."""
-    url = f"{API_BASE_URL}/user/basic?key={api_key}"
+    url = f"{API_BASE_URL}/v2/user/basic?key={api_key}"
 
     try:
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)) as response:

@@ -38,6 +38,9 @@ async def async_setup_entry(
         TornProfileNameSensor(coordinator, entry),
         TornProfileLevelSensor(coordinator, entry),
         TornProfileStatusSensor(coordinator, entry),
+        TornProfileStatusDescriptionSensor(coordinator, entry),
+        TornProfileStatusDetailsSensor(coordinator, entry),
+        TornProfileStatusUntilSensor(coordinator, entry),
         # Battle stats sensors
         TornBattleStatsStrengthSensor(coordinator, entry),
         TornBattleStatsDefenseSensor(coordinator, entry),
@@ -203,6 +206,81 @@ class TornProfileStatusSensor(TornSensor):
             if isinstance(status, dict):
                 return status.get("state") or status.get("description")
             return str(status)
+        return None
+
+
+class TornProfileStatusDescriptionSensor(TornSensor):
+    """Sensor for player status description."""
+
+    _attr_icon = "mdi:text"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_profile_status_description"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Profile Status Description"
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the state."""
+        if self.coordinator.data:
+            status = self.coordinator.data.get("profile", {}).get("status", {})
+            return status.get("description")
+        return None
+
+
+class TornProfileStatusDetailsSensor(TornSensor):
+    """Sensor for player status details (e.g., hospital reason)."""
+
+    _attr_icon = "mdi:text-box"
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_profile_status_details"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Profile Status Details"
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the state."""
+        if self.coordinator.data:
+            status = self.coordinator.data.get("profile", {}).get("status", {})
+            return status.get("details")
+        return None
+
+
+class TornProfileStatusUntilSensor(TornSensor):
+    """Sensor for player status until timestamp."""
+
+    _attr_icon = "mdi:clock-end"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_profile_status_until"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Profile Status Until"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the state."""
+        if self.coordinator.data:
+            status = self.coordinator.data.get("profile", {}).get("status", {})
+            until = status.get("until")
+            if until and until > 0:
+                return datetime.fromtimestamp(until, tz=timezone.utc)
         return None
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 from datetime import timedelta
+from time import time
 from typing import Any
 
 import aiohttp
@@ -24,6 +25,7 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         session: aiohttp.ClientSession,
         api_key: str,
         update_interval: timedelta,
+        throttle_api: bool = False,
     ) -> None:
         """Initialize the coordinator."""
         super().__init__(
@@ -34,17 +36,34 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
         self.session = session
         self.api_key = api_key
+        self.throttle_multiplier = 10 if throttle_api else 1
+        self._cache: dict[str, Any] = {}  # Cached data per endpoint key
+        self._cache_times: dict[str, float] = {}  # Last fetch time per endpoint key
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from Torn City API."""
         combined_data = {}
         errors = []
+        current_time = time()
 
         # Fetch data from all configured endpoints
         for endpoint_config in API_ENDPOINTS:
             path = endpoint_config["path"]
             data_key = endpoint_config["key"]
             params = endpoint_config.get("params", {})
+            cache_for = endpoint_config.get("cache_for")
+
+            # Check if we have cached data that's still valid
+            if cache_for and data_key in self._cache:
+                last_fetch = self._cache_times.get(data_key, 0)
+                cache_age = current_time - last_fetch
+                effective_cache_duration = cache_for * self.throttle_multiplier
+
+                if cache_age < effective_cache_duration:
+                    # Use cached data
+                    combined_data[data_key] = self._cache[data_key]
+                    _LOGGER.debug(f"Using cached data for {data_key} (age: {cache_age:.0f}s / {effective_cache_duration}s)")
+                    continue
 
             try:
                 # Build URL with query parameters
@@ -58,6 +77,9 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         error_msg = f"HTTP {response.status} on {path}"
                         _LOGGER.warning(error_msg)
                         errors.append(error_msg)
+                        # Use cached data if available as fallback
+                        if data_key in self._cache:
+                            combined_data[data_key] = self._cache[data_key]
                         continue
 
                     data = await response.json()
@@ -66,20 +88,35 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         error_msg = f"{data['error'].get('error', 'Unknown error')} on {path}"
                         _LOGGER.warning(f"API error: {error_msg}")
                         errors.append(error_msg)
+                        # Use cached data if available as fallback
+                        if data_key in self._cache:
+                            combined_data[data_key] = self._cache[data_key]
                         continue
 
                     # Extract the actual data using the configured key
                     # The response structure is typically {"key": {...}}
-                    combined_data[data_key] = data.get(data_key, {})
+                    endpoint_data = data.get(data_key, {})
+                    combined_data[data_key] = endpoint_data
+
+                    # Update cache
+                    self._cache[data_key] = endpoint_data
+                    self._cache_times[data_key] = current_time
+                    _LOGGER.debug(f"Fetched and cached {data_key}")
 
             except aiohttp.ClientError as err:
                 error_msg = f"Network error on {path}: {err}"
                 _LOGGER.warning(error_msg)
                 errors.append(error_msg)
+                # Use cached data if available as fallback
+                if data_key in self._cache:
+                    combined_data[data_key] = self._cache[data_key]
             except Exception as err:
                 error_msg = f"Unexpected error on {path}: {err}"
                 _LOGGER.warning(error_msg)
                 errors.append(error_msg)
+                # Use cached data if available as fallback
+                if data_key in self._cache:
+                    combined_data[data_key] = self._cache[data_key]
 
         # If no data was retrieved at all, raise UpdateFailed
         if not combined_data:

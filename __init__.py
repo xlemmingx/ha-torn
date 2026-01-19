@@ -9,7 +9,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import DOMAIN, CONF_API_KEY, CONF_UPDATE_INTERVAL, DEFAULT_SCAN_INTERVAL
+from .const import DOMAIN, CONF_API_KEY, CONF_THROTTLE_API, DEFAULT_SCAN_INTERVAL
 from .coordinator import TornDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,12 +23,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Create the data update coordinator
     session = async_get_clientsession(hass)
-    update_interval = entry.data.get(CONF_UPDATE_INTERVAL, DEFAULT_SCAN_INTERVAL)
     coordinator = TornDataUpdateCoordinator(
         hass,
         session,
         entry.data[CONF_API_KEY],
-        timedelta(seconds=update_interval),
+        timedelta(seconds=DEFAULT_SCAN_INTERVAL),
+        entry.data.get(CONF_THROTTLE_API, False),
     )
 
     # Fetch initial data

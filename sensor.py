@@ -53,6 +53,7 @@ async def async_setup_entry(
         TornBarsHappySensor(coordinator, entry),
         TornBarsLifeSensor(coordinator, entry),
         TornBarsChainSensor(coordinator, entry),
+        TornBarsChainTimeoutSensor(coordinator, entry),
         # Cooldowns sensors
         TornCooldownsDrugSensor(coordinator, entry),
         TornCooldownsMedicalSensor(coordinator, entry),
@@ -99,6 +100,13 @@ async def async_setup_entry(
         if skills and isinstance(skills, list):
             for skill in skills:
                 entities.append(TornSkillSensor(coordinator, entry, skill))
+
+    # Add dynamic stock sensors (all 35 stocks)
+    if coordinator.data and "torn_stocks" in coordinator.data:
+        torn_stocks = coordinator.data["torn_stocks"].get("stocks", {})
+        if torn_stocks:
+            for stock_id, stock_data in torn_stocks.items():
+                entities.append(TornStockSensor(coordinator, entry, stock_id, stock_data))
 
     async_add_entities(entities)
 
@@ -614,6 +622,34 @@ class TornBarsChainSensor(TornSensor):
                     "timeout": chain.get("timeout"),
                 }
         return {}
+
+
+class TornBarsChainTimeoutSensor(TornSensor):
+    """Sensor for chain timeout timer."""
+
+    _attr_icon = "mdi:timer"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_bars_chain_timeout"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return "Bars Chain Timeout"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the state as timestamp."""
+        if self.coordinator.data:
+            chain = self.coordinator.data.get("bars", {}).get("chain")
+            if chain and isinstance(chain, dict):
+                timeout = chain.get("timeout")
+                if timeout and timeout > 0:
+                    return datetime.fromtimestamp(timeout, tz=timezone.utc)
+        return None
 
 
 # ============================================================================
@@ -1549,3 +1585,102 @@ class TornCompanyWeeklyIncomeSensor(TornSensor):
         if self.coordinator.data:
             return self.coordinator.data.get("company", {}).get("weekly_income")
         return None
+
+
+# ============================================================================
+# Stock Sensors (Dynamic)
+# ============================================================================
+
+
+class TornStockSensor(TornSensor):
+    """Sensor for a stock."""
+
+    _attr_icon = "mdi:chart-line"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: TornDataUpdateCoordinator,
+        entry: ConfigEntry,
+        stock_id: str,
+        stock_data: dict,
+    ) -> None:
+        """Initialize the stock sensor."""
+        super().__init__(coordinator, entry)
+        self.stock_id = stock_id
+        self._stock_data = stock_data
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self.entry.entry_id}_stock_{self.stock_id}"
+
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        acronym = self._stock_data.get("acronym", f"Stock {self.stock_id}")
+        return f"Stock {acronym}"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the state (number of shares owned)."""
+        if self.coordinator.data:
+            user_stocks = self.coordinator.data.get("user_stocks", {}).get("stocks", {})
+            if self.stock_id in user_stocks:
+                return user_stocks[self.stock_id].get("total_shares", 0)
+        return 0
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        if not self.coordinator.data:
+            return {}
+
+        # Get torn stocks data (market info)
+        torn_stocks = self.coordinator.data.get("torn_stocks", {}).get("stocks", {})
+        stock_info = torn_stocks.get(self.stock_id, {})
+
+        # Get user stocks data (ownership info)
+        user_stocks = self.coordinator.data.get("user_stocks", {}).get("stocks", {})
+        user_stock = user_stocks.get(self.stock_id, {})
+
+        # Basic stock information
+        current_price = stock_info.get("current_price", 0)
+        total_shares_owned = user_stock.get("total_shares", 0)
+
+        attributes = {
+            "stock_id": int(self.stock_id),
+            "name": stock_info.get("name"),
+            "acronym": stock_info.get("acronym"),
+            "current_price": current_price,
+            "market_cap": stock_info.get("market_cap"),
+            "total_shares": stock_info.get("total_shares"),
+            "investors": stock_info.get("investors"),
+            "total_shares_owned": total_shares_owned,
+            "total_value": current_price * total_shares_owned if total_shares_owned else 0,
+        }
+
+        # Benefit information from torn stocks
+        benefit = stock_info.get("benefit", {})
+        if benefit:
+            attributes["benefit_type"] = benefit.get("type")
+            attributes["benefit_requirement"] = benefit.get("requirement")
+            attributes["benefit_description"] = benefit.get("description")
+            attributes["benefit_frequency"] = benefit.get("frequency")
+
+        # User-specific benefit/dividend info (only if owned)
+        if user_stock:
+            # Handle both "benefit" and "dividend" keys
+            user_benefit = user_stock.get("benefit") or user_stock.get("dividend", {})
+            if user_benefit:
+                attributes["blocks_active"] = user_benefit.get("increment", 0)
+                attributes["blocks_next_payout_progress"] = user_benefit.get("progress", 0)
+                attributes["blocks_ready_to_claim"] = bool(user_benefit.get("ready", 0))
+
+                # Calculate total benefit per payout (increment × benefit amount)
+                # Note: benefit_description might need parsing if it's a string like "$50,000,000"
+                increment = user_benefit.get("increment", 0)
+                if increment > 0:
+                    attributes["blocks_next_payout_frequency"] = user_benefit.get("frequency")
+
+        return attributes

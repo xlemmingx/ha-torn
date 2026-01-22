@@ -1602,6 +1602,8 @@ class TornStockSensor(TornSensor):
 
     _attr_icon = "mdi:chart-line"
     _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = "$"
 
     def __init__(
         self,
@@ -1627,13 +1629,13 @@ class TornStockSensor(TornSensor):
         return f"Stock {acronym}"
 
     @property
-    def native_value(self) -> int | None:
-        """Return the state (number of shares owned)."""
+    def native_value(self) -> float | None:
+        """Return the state (current stock price)."""
         if self.coordinator.data:
-            user_stocks = self.coordinator.data.get("user_stocks", {})
-            if self.stock_id in user_stocks:
-                return user_stocks[self.stock_id].get("total_shares", 0)
-        return 0
+            torn_stocks = self.coordinator.data.get("torn_stocks", {})
+            stock_info = torn_stocks.get(self.stock_id, {})
+            return stock_info.get("current_price")
+        return None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -1655,14 +1657,13 @@ class TornStockSensor(TornSensor):
 
         attributes = {
             "stock_id": int(self.stock_id),
+            "shares_owned": total_shares_owned,
+            "total_value": current_price * total_shares_owned if total_shares_owned else 0,
             "name": stock_info.get("name"),
             "acronym": stock_info.get("acronym"),
-            "current_price": current_price,
             "market_cap": stock_info.get("market_cap"),
             "total_shares": stock_info.get("total_shares"),
             "investors": stock_info.get("investors"),
-            "total_shares_owned": total_shares_owned,
-            "total_value": current_price * total_shares_owned if total_shares_owned else 0,
         }
 
         # Benefit information from torn stocks

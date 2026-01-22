@@ -103,10 +103,15 @@ async def async_setup_entry(
 
     # Add dynamic stock sensors (all 35 stocks)
     if coordinator.data and "torn_stocks" in coordinator.data:
-        torn_stocks = coordinator.data["torn_stocks"].get("stocks", {})
-        if torn_stocks:
+        torn_stocks = coordinator.data["torn_stocks"]
+        _LOGGER.info(f"Creating stock sensors. Found {len(torn_stocks) if torn_stocks else 0} stocks in torn_stocks")
+        if torn_stocks and isinstance(torn_stocks, dict):
             for stock_id, stock_data in torn_stocks.items():
+                _LOGGER.debug(f"Creating TornStockSensor for stock_id={stock_id}, name={stock_data.get('name', 'Unknown')}")
                 entities.append(TornStockSensor(coordinator, entry, stock_id, stock_data))
+            _LOGGER.info(f"Created {len([e for e in entities if isinstance(e, TornStockSensor)])} stock sensors")
+    else:
+        _LOGGER.warning(f"No torn_stocks data found. coordinator.data keys: {list(coordinator.data.keys()) if coordinator.data else 'None'}")
 
     async_add_entities(entities)
 
@@ -1625,7 +1630,7 @@ class TornStockSensor(TornSensor):
     def native_value(self) -> int | None:
         """Return the state (number of shares owned)."""
         if self.coordinator.data:
-            user_stocks = self.coordinator.data.get("user_stocks", {}).get("stocks", {})
+            user_stocks = self.coordinator.data.get("user_stocks", {})
             if self.stock_id in user_stocks:
                 return user_stocks[self.stock_id].get("total_shares", 0)
         return 0
@@ -1637,11 +1642,11 @@ class TornStockSensor(TornSensor):
             return {}
 
         # Get torn stocks data (market info)
-        torn_stocks = self.coordinator.data.get("torn_stocks", {}).get("stocks", {})
+        torn_stocks = self.coordinator.data.get("torn_stocks", {})
         stock_info = torn_stocks.get(self.stock_id, {})
 
         # Get user stocks data (ownership info)
-        user_stocks = self.coordinator.data.get("user_stocks", {}).get("stocks", {})
+        user_stocks = self.coordinator.data.get("user_stocks", {})
         user_stock = user_stocks.get(self.stock_id, {})
 
         # Basic stock information

@@ -38,7 +38,7 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.api_key = api_key
         self.throttle_multiplier = 10 if throttle_api else 1
         self._cache: dict[str, Any] = {}  # Cached data per endpoint key
-        self._cache_times: dict[str, float] = {}  # Last fetch time per endpoint key
+        self.cache_times: dict[str, float] = {}  # Last fetch time per endpoint key (public for sensors)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from Torn City API."""
@@ -55,7 +55,7 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Check if we have cached data that's still valid
             if cache_for and data_key in self._cache:
-                last_fetch = self._cache_times.get(data_key, 0)
+                last_fetch = self.cache_times.get(data_key, 0)
                 cache_age = current_time - last_fetch
                 effective_cache_duration = cache_for * self.throttle_multiplier
 
@@ -102,7 +102,7 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
                     # Update cache
                     self._cache[data_key] = endpoint_data
-                    self._cache_times[data_key] = current_time
+                    self.cache_times[data_key] = current_time
                     _LOGGER.debug(f"Fetched and cached {data_key}")
 
             except aiohttp.ClientError as err:

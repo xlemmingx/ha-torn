@@ -684,7 +684,9 @@ class TornCooldownsDrugSensor(TornSensor):
         if self.coordinator.data:
             seconds = self.coordinator.data.get("cooldowns", {}).get("drug", 0)
             if seconds > 0:
-                return datetime.now(timezone.utc).replace(microsecond=0) + timedelta(seconds=seconds)
+                # Use cache time to calculate stable timestamp
+                fetch_time = self.coordinator.cache_times.get("cooldowns", datetime.now(timezone.utc).timestamp())
+                return datetime.fromtimestamp(fetch_time, tz=timezone.utc).replace(microsecond=0) + timedelta(seconds=seconds)
         return None
 
 
@@ -710,7 +712,9 @@ class TornCooldownsMedicalSensor(TornSensor):
         if self.coordinator.data:
             seconds = self.coordinator.data.get("cooldowns", {}).get("medical", 0)
             if seconds > 0:
-                return datetime.now(timezone.utc).replace(microsecond=0) + timedelta(seconds=seconds)
+                # Use cache time to calculate stable timestamp
+                fetch_time = self.coordinator.cache_times.get("cooldowns", datetime.now(timezone.utc).timestamp())
+                return datetime.fromtimestamp(fetch_time, tz=timezone.utc).replace(microsecond=0) + timedelta(seconds=seconds)
         return None
 
 
@@ -736,7 +740,9 @@ class TornCooldownsBoosterSensor(TornSensor):
         if self.coordinator.data:
             seconds = self.coordinator.data.get("cooldowns", {}).get("booster", 0)
             if seconds > 0:
-                return datetime.now(timezone.utc).replace(microsecond=0) + timedelta(seconds=seconds)
+                # Use cache time to calculate stable timestamp
+                fetch_time = self.coordinator.cache_times.get("cooldowns", datetime.now(timezone.utc).timestamp())
+                return datetime.fromtimestamp(fetch_time, tz=timezone.utc).replace(microsecond=0) + timedelta(seconds=seconds)
         return None
 
 
@@ -1688,5 +1694,45 @@ class TornStockSensor(TornSensor):
                 increment = user_benefit.get("increment", 0)
                 if increment > 0:
                     attributes["blocks_next_payout_frequency"] = user_benefit.get("frequency")
+
+            # Add individual block (transaction) details
+            transactions = user_stock.get("transactions", {})
+            if transactions:
+                attributes["number_of_blocks"] = len(transactions)
+
+                # Calculate totals for average price
+                total_invested = 0
+                total_current_value = 0
+
+                block_num = 1
+                for transaction_id, transaction_data in transactions.items():
+                    block_shares = transaction_data.get("shares", 0)
+                    block_bought_price = transaction_data.get("bought_price", 0)
+
+                    attributes[f"block_{block_num}_shares"] = block_shares
+                    attributes[f"block_{block_num}_bought_price"] = block_bought_price
+
+                    # Add time_bought as datetime if available
+                    time_bought = transaction_data.get("time_bought")
+                    if time_bought:
+                        attributes[f"block_{block_num}_time_bought"] = datetime.fromtimestamp(time_bought, tz=timezone.utc).isoformat()
+
+                    # Calculate value for this block
+                    block_invested = block_shares * block_bought_price
+                    block_current_value = block_shares * current_price
+
+                    attributes[f"block_{block_num}_invested"] = block_invested
+                    attributes[f"block_{block_num}_current_value"] = block_current_value
+                    attributes[f"block_{block_num}_profit_loss"] = block_current_value - block_invested
+
+                    total_invested += block_invested
+                    total_current_value += block_current_value
+
+                    block_num += 1
+
+                # Add summary attributes
+                attributes["total_invested"] = total_invested
+                attributes["average_bought_price"] = total_invested / total_shares_owned if total_shares_owned > 0 else 0
+                attributes["total_profit_loss"] = total_current_value - total_invested
 
         return attributes

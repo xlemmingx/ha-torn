@@ -1704,8 +1704,14 @@ class TornStockSensor(TornSensor):
                 total_invested = 0
                 total_current_value = 0
 
+                # Sort transactions by time_bought (oldest first)
+                sorted_transactions = sorted(
+                    transactions.items(),
+                    key=lambda x: x[1].get("time_bought", 0)
+                )
+
                 block_num = 1
-                for transaction_id, transaction_data in transactions.items():
+                for transaction_id, transaction_data in sorted_transactions:
                     block_shares = transaction_data.get("shares", 0)
                     block_bought_price = transaction_data.get("bought_price", 0)
 

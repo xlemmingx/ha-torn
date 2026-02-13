@@ -32,87 +32,118 @@ async def async_setup_entry(
         "coordinator"
     ]
 
+    # Helper function to check if endpoint is enabled
+    def is_endpoint_enabled(key: str) -> bool:
+        """Check if an endpoint is enabled."""
+        return key in coordinator.enabled_data_keys
+
     # Create flat sensor entities
-    entities: list[SensorEntity] = [
-        # Profile sensors
-        TornProfileNameSensor(coordinator, entry),
-        TornProfileLevelSensor(coordinator, entry),
-        TornProfileStatusSensor(coordinator, entry),
-        TornProfileStatusDescriptionSensor(coordinator, entry),
-        TornProfileStatusDetailsSensor(coordinator, entry),
-        TornProfileStatusUntilSensor(coordinator, entry),
-        # Battle stats sensors
-        TornBattleStatsStrengthSensor(coordinator, entry),
-        TornBattleStatsDefenseSensor(coordinator, entry),
-        TornBattleStatsSpeedSensor(coordinator, entry),
-        TornBattleStatsDexteritySensor(coordinator, entry),
-        TornBattleStatsTotalSensor(coordinator, entry),
-        # Bars sensors
-        TornBarsEnergySensor(coordinator, entry),
-        TornBarsNerveSensor(coordinator, entry),
-        TornBarsHappySensor(coordinator, entry),
-        TornBarsLifeSensor(coordinator, entry),
-        TornBarsChainSensor(coordinator, entry),
-        TornBarsChainTimeoutSensor(coordinator, entry),
-        # Cooldowns sensors
-        TornCooldownsDrugSensor(coordinator, entry),
-        TornCooldownsMedicalSensor(coordinator, entry),
-        TornCooldownsBoosterSensor(coordinator, entry),
-        # Money sensors
-        TornMoneyPointsSensor(coordinator, entry),
-        TornMoneyWalletSensor(coordinator, entry),
-        TornMoneyCompanySensor(coordinator, entry),
-        TornMoneyVaultSensor(coordinator, entry),
-        TornMoneyCaymanBankSensor(coordinator, entry),
-        TornMoneyCityBankSensor(coordinator, entry),
-        TornMoneyCityBankProfitSensor(coordinator, entry),
-        TornMoneyCityBankDurationSensor(coordinator, entry),
-        TornMoneyCityBankInterestRateSensor(coordinator, entry),
-        TornMoneyCityBankUntilSensor(coordinator, entry),
-        TornMoneyCityBankInvestedAtSensor(coordinator, entry),
-        TornMoneyFactionSensor(coordinator, entry),
-        TornMoneyFactionPointsSensor(coordinator, entry),
-        TornMoneyDailyNetworthSensor(coordinator, entry),
-        # Travel sensors
-        TornTravelDestinationSensor(coordinator, entry),
-        TornTravelMethodSensor(coordinator, entry),
-        TornTravelDepartedAtSensor(coordinator, entry),
-        TornTravelArrivalAtSensor(coordinator, entry),
-        TornTravelTimeLeftSensor(coordinator, entry),
-        # Log sensor
-        TornLogLatestSensor(coordinator, entry),
-        # Company sensors
-        TornCompanyFundsSensor(coordinator, entry),
-        TornCompanyPopularitySensor(coordinator, entry),
-        TornCompanyEfficiencySensor(coordinator, entry),
-        TornCompanyEnvironmentSensor(coordinator, entry),
-        TornCompanyTrainsAvailableSensor(coordinator, entry),
-        TornCompanyAdvertisingBudgetSensor(coordinator, entry),
-        TornCompanyRatingSensor(coordinator, entry),
-        TornCompanyNameSensor(coordinator, entry),
-        TornCompanyDailyIncomeSensor(coordinator, entry),
-        TornCompanyWeeklyIncomeSensor(coordinator, entry),
-    ]
+    entities: list[SensorEntity] = []
+
+    # Profile & Battle stats sensors (always enabled - core endpoints)
+    if is_endpoint_enabled("profile"):
+        entities.extend([
+            TornProfileNameSensor(coordinator, entry),
+            TornProfileLevelSensor(coordinator, entry),
+            TornProfileStatusSensor(coordinator, entry),
+            TornProfileStatusDescriptionSensor(coordinator, entry),
+            TornProfileStatusDetailsSensor(coordinator, entry),
+            TornProfileStatusUntilSensor(coordinator, entry),
+            TornBattleStatsStrengthSensor(coordinator, entry),
+            TornBattleStatsDefenseSensor(coordinator, entry),
+            TornBattleStatsSpeedSensor(coordinator, entry),
+            TornBattleStatsDexteritySensor(coordinator, entry),
+            TornBattleStatsTotalSensor(coordinator, entry),
+        ])
+
+    # Bars sensors (always enabled - core endpoints)
+    if is_endpoint_enabled("bars"):
+        entities.extend([
+            TornBarsEnergySensor(coordinator, entry),
+            TornBarsNerveSensor(coordinator, entry),
+            TornBarsHappySensor(coordinator, entry),
+            TornBarsLifeSensor(coordinator, entry),
+            TornBarsChainSensor(coordinator, entry),
+            TornBarsChainTimeoutSensor(coordinator, entry),
+        ])
+
+    # Cooldowns sensors
+    if is_endpoint_enabled("cooldowns"):
+        entities.extend([
+            TornCooldownsDrugSensor(coordinator, entry),
+            TornCooldownsMedicalSensor(coordinator, entry),
+            TornCooldownsBoosterSensor(coordinator, entry),
+        ])
+
+    # Money sensors
+    if is_endpoint_enabled("money"):
+        entities.extend([
+            TornMoneyPointsSensor(coordinator, entry),
+            TornMoneyWalletSensor(coordinator, entry),
+            TornMoneyCompanySensor(coordinator, entry),
+            TornMoneyVaultSensor(coordinator, entry),
+            TornMoneyCaymanBankSensor(coordinator, entry),
+            TornMoneyCityBankSensor(coordinator, entry),
+            TornMoneyCityBankProfitSensor(coordinator, entry),
+            TornMoneyCityBankDurationSensor(coordinator, entry),
+            TornMoneyCityBankInterestRateSensor(coordinator, entry),
+            TornMoneyCityBankUntilSensor(coordinator, entry),
+            TornMoneyCityBankInvestedAtSensor(coordinator, entry),
+            TornMoneyFactionSensor(coordinator, entry),
+            TornMoneyFactionPointsSensor(coordinator, entry),
+            TornMoneyDailyNetworthSensor(coordinator, entry),
+        ])
+
+    # Travel sensors
+    if is_endpoint_enabled("travel"):
+        entities.extend([
+            TornTravelDestinationSensor(coordinator, entry),
+            TornTravelMethodSensor(coordinator, entry),
+            TornTravelDepartedAtSensor(coordinator, entry),
+            TornTravelArrivalAtSensor(coordinator, entry),
+            TornTravelTimeLeftSensor(coordinator, entry),
+        ])
+
+    # Log sensor
+    if is_endpoint_enabled("log"):
+        entities.append(TornLogLatestSensor(coordinator, entry))
+
+    # Company sensors
+    if is_endpoint_enabled("company") or is_endpoint_enabled("company_detailed"):
+        entities.extend([
+            TornCompanyFundsSensor(coordinator, entry),
+            TornCompanyPopularitySensor(coordinator, entry),
+            TornCompanyEfficiencySensor(coordinator, entry),
+            TornCompanyEnvironmentSensor(coordinator, entry),
+            TornCompanyTrainsAvailableSensor(coordinator, entry),
+            TornCompanyAdvertisingBudgetSensor(coordinator, entry),
+            TornCompanyRatingSensor(coordinator, entry),
+            TornCompanyNameSensor(coordinator, entry),
+            TornCompanyDailyIncomeSensor(coordinator, entry),
+            TornCompanyWeeklyIncomeSensor(coordinator, entry),
+        ])
 
     # Add dynamic skill sensors
-    if coordinator.data and "skills" in coordinator.data:
+    if is_endpoint_enabled("skills") and coordinator.data and "skills" in coordinator.data:
         skills = coordinator.data["skills"]
         if skills and isinstance(skills, list):
             for skill in skills:
                 entities.append(TornSkillSensor(coordinator, entry, skill))
 
     # Add dynamic stock sensors (all 35 stocks)
-    if coordinator.data and "torn_stocks" in coordinator.data:
-        torn_stocks = coordinator.data["torn_stocks"]
-        _LOGGER.info(f"Creating stock sensors. Found {len(torn_stocks) if torn_stocks else 0} stocks in torn_stocks")
-        if torn_stocks and isinstance(torn_stocks, dict):
-            for stock_id, stock_data in torn_stocks.items():
-                _LOGGER.debug(f"Creating TornStockSensor for stock_id={stock_id}, name={stock_data.get('name', 'Unknown')}")
-                entities.append(TornStockSensor(coordinator, entry, stock_id, stock_data))
-            _LOGGER.info(f"Created {len([e for e in entities if isinstance(e, TornStockSensor)])} stock sensors")
-    else:
-        _LOGGER.warning(f"No torn_stocks data found. coordinator.data keys: {list(coordinator.data.keys()) if coordinator.data else 'None'}")
+    if is_endpoint_enabled("torn_stocks") and is_endpoint_enabled("user_stocks"):
+        if coordinator.data and "torn_stocks" in coordinator.data:
+            torn_stocks = coordinator.data["torn_stocks"]
+            _LOGGER.info(f"Creating stock sensors. Found {len(torn_stocks) if torn_stocks else 0} stocks in torn_stocks")
+            if torn_stocks and isinstance(torn_stocks, dict):
+                for stock_id, stock_data in torn_stocks.items():
+                    _LOGGER.debug(f"Creating TornStockSensor for stock_id={stock_id}, name={stock_data.get('name', 'Unknown')}")
+                    entities.append(TornStockSensor(coordinator, entry, stock_id, stock_data))
+                _LOGGER.info(f"Created {len([e for e in entities if isinstance(e, TornStockSensor)])} stock sensors")
+        else:
+            _LOGGER.debug(f"Stocks endpoint enabled but no torn_stocks data found. coordinator.data keys: {list(coordinator.data.keys()) if coordinator.data else 'None'}")
 
+    _LOGGER.info(f"Created {len(entities)} sensors based on enabled endpoints")
     async_add_entities(entities)
 
 

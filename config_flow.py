@@ -12,7 +12,14 @@ from homeassistant.const import CONF_NAME
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
-from .const import DOMAIN, CONF_API_KEY, CONF_THROTTLE_API, API_BASE_URL, API_TIMEOUT
+from .const import (
+    DOMAIN,
+    CONF_API_KEY,
+    CONF_THROTTLE_API,
+    API_BASE_URL,
+    API_TIMEOUT,
+    ENDPOINT_CATEGORIES,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,6 +57,11 @@ class TornConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    @staticmethod
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> TornOptionsFlowHandler:
+        """Get the options flow for this handler."""
+        return TornOptionsFlowHandler()
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
@@ -76,4 +88,34 @@ class TornConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
+        )
+
+
+class TornOptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle options flow for Torn City integration."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        # Build schema from endpoint categories
+        schema_dict = {}
+        for category_key, category_config in ENDPOINT_CATEGORIES.items():
+            # Skip core endpoints (always enabled)
+            if not category_config["can_disable"]:
+                continue
+
+            # Get current value from options, or use default
+            current_value = self.config_entry.options.get(
+                category_key, category_config["enabled_by_default"]
+            )
+
+            schema_dict[vol.Optional(category_key, default=current_value)] = bool
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(schema_dict),
         )

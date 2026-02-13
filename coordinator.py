@@ -11,7 +11,7 @@ import aiohttp
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import API_BASE_URL, API_ENDPOINTS, API_TIMEOUT, DOMAIN
+from .const import API_BASE_URL, API_ENDPOINTS, API_TIMEOUT, DOMAIN, get_enabled_endpoints
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         api_key: str,
         update_interval: timedelta,
         throttle_api: bool = False,
+        enabled_endpoint_options: dict[str, Any] | None = None,
     ) -> None:
         """Initialize the coordinator."""
         super().__init__(
@@ -40,14 +41,19 @@ class TornDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._cache: dict[str, Any] = {}  # Cached data per endpoint key
         self.cache_times: dict[str, float] = {}  # Last fetch time per endpoint key (public for sensors)
 
+        # Get enabled endpoints based on options
+        self.enabled_endpoints = get_enabled_endpoints(enabled_endpoint_options or {})
+        # Build set of enabled data keys for quick lookup
+        self.enabled_data_keys = {ep["key"] for ep in self.enabled_endpoints}
+
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from Torn City API."""
         combined_data = {}
         errors = []
         current_time = time()
 
-        # Fetch data from all configured endpoints
-        for endpoint_config in API_ENDPOINTS:
+        # Fetch data from enabled endpoints
+        for endpoint_config in self.enabled_endpoints:
             path = endpoint_config["path"]
             data_key = endpoint_config["key"]
             params = endpoint_config.get("params", {})

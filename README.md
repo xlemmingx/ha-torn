@@ -86,6 +86,15 @@ The integration uses intelligent caching to minimize API calls:
 1. **Disable unused endpoints**: Configure the integration to disable features you don't use (each disabled feature saves 1-2 API calls)
 2. **Enable "Throttle API Usage"**: Reduces update frequency by 10x if you're sharing an API key or approaching limits
 
+## Privacy & Security
+
+This integration stores your Torn City API key **locally** in your Home Assistant configuration only.
+
+- No data is sent to external servers
+- No data sharing with third parties
+- API key is used only for fetching your personal Torn City data
+- All data remains on your Home Assistant instance
+
 ## Support
 
 - [GitHub Issues](https://github.com/xlemmingx/ha-torn/issues)

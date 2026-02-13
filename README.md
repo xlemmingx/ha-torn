@@ -32,6 +32,16 @@ A comprehensive Home Assistant integration for [Torn City](https://www.torn.com)
 4. Optional: Enable "Throttle API Usage" to reduce API calls if needed
 5. Submit
 
+### Customizing API Endpoints
+
+After setup, you can configure which features to enable:
+
+1. Settings → Devices & Services → Torn City → Configure
+2. Enable/disable individual features (Money, Travel, Cooldowns, Stats, Skills, Company, Stocks, Refills, Log)
+3. Disabled features reduce API usage and remove associated sensors
+
+Profile & Bars are always enabled (core functionality).
+
 ## Features
 
 ### Player & Stats
@@ -69,9 +79,12 @@ The integration uses intelligent caching to minimize API calls:
 - Medium frequency (60s cache): cooldowns, stats, company, stocks
 - Low frequency (600s cache): skills, refills
 
-**Total usage: ~64 API calls/minute** (64% of the 100/minute limit)
+**Default usage: ~64 API calls/minute** (64% of the 100/minute limit)
 
-Enable "Throttle API Usage" during setup to reduce this by 10x if you're sharing an API key or approaching limits.
+### Reducing API Usage
+
+1. **Disable unused endpoints**: Configure the integration to disable features you don't use (each disabled feature saves 1-2 API calls)
+2. **Enable "Throttle API Usage"**: Reduces update frequency by 10x if you're sharing an API key or approaching limits
 
 ## Support
 
